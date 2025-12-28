@@ -18,11 +18,14 @@ FOLDER_RU = os.path.join(BASE_DIR, "RU_Best")
 FOLDER_EURO = os.path.join(BASE_DIR, "My_Euro")
 
 if os.path.exists(BASE_DIR):
-    for item in os.listdir(BASE_DIR):
-        item_path = os.path.join(BASE_DIR, item)
-        if item.endswith(".json"): continue
-        if os.path.isdir(item_path): shutil.rmtree(item_path)
-        else: os.remove(item_path)
+    # Очистка папок, но оставляем структуру
+    pass 
+else:
+    os.makedirs(BASE_DIR)
+
+# Полная очистка перед стартом, чтобы старые части не мешали
+if os.path.exists(FOLDER_RU): shutil.rmtree(FOLDER_RU)
+if os.path.exists(FOLDER_EURO): shutil.rmtree(FOLDER_EURO)
 
 os.makedirs(FOLDER_RU, exist_ok=True)
 os.makedirs(FOLDER_EURO, exist_ok=True)
@@ -33,14 +36,15 @@ socket.setdefaulttimeout(TIMEOUT)
 
 THREADS = 40 
 CACHE_HOURS = 12
-CHUNK_LIMIT = 1000
+CHUNK_LIMIT = 1000  # Разбивка по 1000 ключей
 
-# УВЕЛИЧИЛ ЛИМИТ ПРОВЕРКИ (было 4000)
+# УВЕЛИЧИЛ ЛИМИТ ПРОВЕРКИ
 MAX_KEYS_TO_CHECK = 15000 
 
 HISTORY_FILE = os.path.join(BASE_DIR, "history.json")
 MY_CHANNEL = "@vlesstrojan" 
 
+# Твои ссылки RU
 URLS_RU = [
     "https://raw.githubusercontent.com/zieng2/wl/main/vless.txt",
     "https://raw.githubusercontent.com/LowiKLive/BypassWhitelistRu/refs/heads/main/WhiteList-Bypass_Ru.txt",
@@ -51,6 +55,7 @@ URLS_RU = [
     "https://s3c3.001.gpucloud.ru/vahe4xkwi/cjdr"
 ]
 
+# Твои ссылки MY
 URLS_MY = [
     "https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/main/githubmirror/new/all_new.txt"
 ]
@@ -160,22 +165,38 @@ def extract_ping(key_str):
         return int(ping_part)
     except: return None
 
-# ИСПРАВЛЕННАЯ ФУНКЦИЯ (Теперь создает файл, даже если он пустой)
+# === ОБНОВЛЕННАЯ ФУНКЦИЯ SAVE_CHUNKED ===
+# Теперь она возвращает список созданных имен файлов
 def save_chunked(keys_list, folder, base_name):
-    # Если список пуст, создаем пустой файл, чтобы не было 404
+    created_files = []
+    
+    # Если список пуст, создаем пустой файл
     if not keys_list:
         fname = f"{base_name}.txt"
         with open(os.path.join(folder, fname), "w", encoding="utf-8") as f:
-            f.write("") # Пустой файл
-        return
+            f.write("")
+        created_files.append(fname)
+        return created_files
 
+    # Разбиваем на части
     chunks = [keys_list[i:i + CHUNK_LIMIT] for i in range(0, len(keys_list), CHUNK_LIMIT)]
+    
     for i, chunk in enumerate(chunks, 1):
-        fname = f"{base_name}.txt" if len(chunks) == 1 else f"{base_name}_part{i}.txt"
-        with open(os.path.join(folder, fname), "w", encoding="utf-8") as f: f.write("\n".join(chunk))
+        if len(chunks) == 1:
+            # Если часть всего одна, не добавляем цифру (чтобы ссылка осталась красивой)
+            fname = f"{base_name}.txt"
+        else:
+            # Если частей много, именуем как base_part1.txt, base_part2.txt
+            fname = f"{base_name}_part{i}.txt"
+            
+        with open(os.path.join(folder, fname), "w", encoding="utf-8") as f:
+            f.write("\n".join(chunk))
+        created_files.append(fname)
+        
+    return created_files
 
 if __name__ == "__main__":
-    print(f"=== CHECKER v9 (No 404 + More Keys) ===")
+    print(f"=== CHECKER v9.1 (Dynamic Links Fix) ===")
     
     history = load_json(HISTORY_FILE)
     tasks = fetch_keys(URLS_RU, "RU") + fetch_keys(URLS_MY, "MY")
@@ -245,23 +266,42 @@ if __name__ == "__main__":
     print(f"RU Valid: {len(res_ru_clean)}")
     print(f"Euro Valid: {len(res_euro_clean)}")
 
-    save_chunked(res_ru_clean, FOLDER_RU, "ru_white")
-    save_chunked(res_euro_clean, FOLDER_EURO, "my_euro")
+    # === СОХРАНЕНИЕ И ГЕНЕРАЦИЯ ССЫЛОК ===
+    
+    # Сохраняем и получаем имена файлов
+    ru_files = save_chunked(res_ru_clean, FOLDER_RU, "ru_white")
+    euro_files = save_chunked(res_euro_clean, FOLDER_EURO, "my_euro")
 
     GITHUB_USER_REPO = "kort0881/vpn-checker-backend"
     BRANCH = "main"
-    BASE_URL = f"https://raw.githubusercontent.com/{GITHUB_USER_REPO}/{BRANCH}/{BASE_DIR}"
+    BASE_URL_RU = f"https://raw.githubusercontent.com/{GITHUB_USER_REPO}/{BRANCH}/{BASE_DIR}/RU_Best"
+    BASE_URL_EURO = f"https://raw.githubusercontent.com/{GITHUB_USER_REPO}/{BRANCH}/{BASE_DIR}/My_Euro"
     
-    subs = [
-        "=== 🇷🇺 RUSSIA WHITELISTS ===",
-        f"{BASE_URL}/RU_Best/ru_white.txt",
-        "\n=== 🇪🇺 MY EUROPE ===",
-        f"{BASE_URL}/My_Euro/my_euro.txt"
-    ]
-    with open(os.path.join(BASE_DIR, "subscriptions_list.txt"), "w", encoding="utf-8") as f:
-        f.write("\n".join(subs))
+    # Формируем список ссылок (Subscription List)
+    subs_lines = ["=== 🇷🇺 RUSSIA WHITELISTS ==="]
+    
+    # Динамически добавляем ссылки RU
+    for i, fname in enumerate(ru_files, 1):
+        link = f"{BASE_URL_RU}/{fname}"
+        # Можно добавить пояснение (Part 1, Part 2), если файлов > 1
+        label = f" (Part {i})" if len(ru_files) > 1 else ""
+        subs_lines.append(f"{link} | RU Best{label}")
 
+    subs_lines.append("\n=== 🇪🇺 MY EUROPE ===")
+    
+    # Динамически добавляем ссылки EURO
+    for i, fname in enumerate(euro_files, 1):
+        link = f"{BASE_URL_EURO}/{fname}"
+        label = f" (Part {i})" if len(euro_files) > 1 else ""
+        subs_lines.append(f"{link} | Euro{label}")
+
+    with open(os.path.join(BASE_DIR, "subscriptions_list.txt"), "w", encoding="utf-8") as f:
+        f.write("\n".join(subs_lines))
+
+    print(f"Ссылки сформированы: RU={len(ru_files)}, EURO={len(euro_files)}")
     print("=== DONE SUCCESS ===")
+
+
 
 
 

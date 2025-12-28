@@ -17,6 +17,7 @@ BASE_DIR = "checked"
 FOLDER_RU = os.path.join(BASE_DIR, "RU_Best")
 FOLDER_EURO = os.path.join(BASE_DIR, "My_Euro")
 
+# Чистим папки перед стартом
 if os.path.exists(FOLDER_RU): shutil.rmtree(FOLDER_RU)
 if os.path.exists(FOLDER_EURO): shutil.rmtree(FOLDER_EURO)
 os.makedirs(FOLDER_RU, exist_ok=True)
@@ -42,7 +43,7 @@ URLS_RU = [
     "https://s3c3.001.gpucloud.ru/vahe4xkwi/cjdr"
 ]
 
-# === ТВОЯ ССЫЛКА (С ПАПКОЙ NEW) ===
+# Ссылка на твою папку NEW
 URLS_MY = [
     "https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/refs/heads/main/githubmirror/new/all_new.txt"
 ]
@@ -154,10 +155,14 @@ def extract_ping(key_str):
         return int(ping_part)
     except: return None
 
+# === ИСПРАВЛЕННАЯ ФУНКЦИЯ: ТЕКСТ ВМЕСТО BASE64 ===
 def save_chunked(keys_list, folder, base_name):
     created_files = []
+    
+    # 1. Убираем пустые
     valid_keys = [k.strip() for k in keys_list if k and k.strip()]
 
+    # 2. Если ключей нет - пустой файл
     if not valid_keys:
         fname = f"{base_name}.txt"
         path = os.path.join(folder, fname)
@@ -165,22 +170,25 @@ def save_chunked(keys_list, folder, base_name):
         created_files.append(fname)
         return created_files
 
+    # 3. Разбиваем на части
     chunks = [valid_keys[i:i + CHUNK_LIMIT] for i in range(0, len(valid_keys), CHUNK_LIMIT)]
     
     for i, chunk in enumerate(chunks, 1):
         if len(chunks) == 1: fname = f"{base_name}.txt"
         else: fname = f"{base_name}_part{i}.txt"
             
-        raw_content = "\n".join(chunk)
-        b64_content = base64.b64encode(raw_content.encode('utf-8')).decode('utf-8')
+        # 4. ПИШЕМ ОБЫЧНЫЙ ТЕКСТ (СПИСОК)
+        content = "\n".join(chunk)
         
         with open(os.path.join(folder, fname), "w", encoding="utf-8") as f:
-            f.write(b64_content)
+            f.write(content)
+            
         created_files.append(fname)
+        
     return created_files
 
 if __name__ == "__main__":
-    print(f"=== CHECKER v9.9 (LINK: /new/all_new.txt) ===")
+    print(f"=== CHECKER v10.0 (TEXT FILES FIXED) ===")
     
     history = load_json(HISTORY_FILE)
     tasks = fetch_keys(URLS_RU, "RU") + fetch_keys(URLS_MY, "MY")
@@ -254,6 +262,8 @@ if __name__ == "__main__":
         f.write("\n".join(subs_lines))
 
     print("=== SUCCESS: LISTS GENERATED ===")
+
+
 
 
 

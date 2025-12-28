@@ -17,7 +17,6 @@ BASE_DIR = "checked"
 FOLDER_RU = os.path.join(BASE_DIR, "RU_Best")
 FOLDER_EURO = os.path.join(BASE_DIR, "My_Euro")
 
-# Чистим старое, создаем новое
 if os.path.exists(FOLDER_RU): shutil.rmtree(FOLDER_RU)
 if os.path.exists(FOLDER_EURO): shutil.rmtree(FOLDER_EURO)
 os.makedirs(FOLDER_RU, exist_ok=True)
@@ -27,13 +26,12 @@ TIMEOUT = 5
 socket.setdefaulttimeout(TIMEOUT)
 THREADS = 40 
 CACHE_HOURS = 12
-CHUNK_LIMIT = 1000  # Разбивка по 1000 ключей
+CHUNK_LIMIT = 1000 
 MAX_KEYS_TO_CHECK = 15000 
 
 HISTORY_FILE = os.path.join(BASE_DIR, "history.json")
 MY_CHANNEL = "@vlesstrojan" 
 
-# === ТВОИ ССЫЛКИ ===
 URLS_RU = [
     "https://raw.githubusercontent.com/zieng2/wl/main/vless.txt",
     "https://raw.githubusercontent.com/LowiKLive/BypassWhitelistRu/refs/heads/main/WhiteList-Bypass_Ru.txt",
@@ -44,8 +42,9 @@ URLS_RU = [
     "https://s3c3.001.gpucloud.ru/vahe4xkwi/cjdr"
 ]
 
+# === ТВОЯ ССЫЛКА (С ПАПКОЙ NEW) ===
 URLS_MY = [
-    "https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/main/githubmirror/new/all_new.txt"
+    "https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/refs/heads/main/githubmirror/new/all_new.txt"
 ]
 
 EURO_CODES = {"NL", "DE", "FI", "GB", "FR", "SE", "PL", "CZ", "AT", "CH", "IT", "ES", "NO", "DK", "BE", "IE", "LU", "EE", "LV", "LT"}
@@ -116,8 +115,10 @@ def check_single_key(data):
         else: return None, None, None
 
         country = get_country_fast(host, key)
-        if tag == "MY" and country != "UNKNOWN" and country not in EURO_CODES:
-            return None, None, None
+        
+        # Разрешаем ВСЁ для MY (кроме России)
+        if tag == "MY":
+            if country == "RU": return None, None, None
 
         is_tls = 'security=tls' in key or 'security=reality' in key or 'trojan://' in key or 'vmess://' in key
         is_ws = 'type=ws' in key or 'net=ws' in key
@@ -153,44 +154,33 @@ def extract_ping(key_str):
         return int(ping_part)
     except: return None
 
-# === ИСПРАВЛЕННАЯ ФУНКЦИЯ (BASE64 + ВОЗВРАТ ИМЕН ФАЙЛОВ) ===
 def save_chunked(keys_list, folder, base_name):
     created_files = []
-    
-    # Убираем пустые
     valid_keys = [k.strip() for k in keys_list if k and k.strip()]
 
-    # Если пусто, создаем пустой файл (чтобы не было 404)
     if not valid_keys:
         fname = f"{base_name}.txt"
         path = os.path.join(folder, fname)
-        with open(path, "w", encoding="utf-8") as f:
-            f.write("")
+        with open(path, "w", encoding="utf-8") as f: f.write("")
         created_files.append(fname)
         return created_files
 
     chunks = [valid_keys[i:i + CHUNK_LIMIT] for i in range(0, len(valid_keys), CHUNK_LIMIT)]
     
     for i, chunk in enumerate(chunks, 1):
-        # Если часть одна - имя без цифры. Если много - с цифрой.
-        if len(chunks) == 1:
-            fname = f"{base_name}.txt"
-        else:
-            fname = f"{base_name}_part{i}.txt"
+        if len(chunks) == 1: fname = f"{base_name}.txt"
+        else: fname = f"{base_name}_part{i}.txt"
             
-        # КОДИРУЕМ В BASE64 (Hiddify полюбит это)
         raw_content = "\n".join(chunk)
         b64_content = base64.b64encode(raw_content.encode('utf-8')).decode('utf-8')
         
         with open(os.path.join(folder, fname), "w", encoding="utf-8") as f:
             f.write(b64_content)
-            
         created_files.append(fname)
-        
     return created_files
 
 if __name__ == "__main__":
-    print(f"=== CHECKER v9.5 (BASE64 + DYNAMIC LINKS) ===")
+    print(f"=== CHECKER v9.9 (LINK: /new/all_new.txt) ===")
     
     history = load_json(HISTORY_FILE)
     tasks = fetch_keys(URLS_RU, "RU") + fetch_keys(URLS_MY, "MY")
@@ -216,7 +206,7 @@ if __name__ == "__main__":
             
             if tag == "RU": res_ru.append(final)
             elif tag == "MY":
-                if country in EURO_CODES: res_euro.append(final)
+                if country != "RU": res_euro.append(final)
         else:
             to_check.append((k, tag))
 
@@ -235,7 +225,7 @@ if __name__ == "__main__":
                 
                 if tag == "RU": res_ru.append(final)
                 elif tag == "MY":
-                    if country in EURO_CODES: res_euro.append(final)
+                    if country != "RU": res_euro.append(final)
 
     save_json(HISTORY_FILE, {k:v for k,v in history.items() if current_time - v['time'] < 259200})
     
@@ -244,13 +234,9 @@ if __name__ == "__main__":
     res_ru_clean.sort(key=extract_ping)
     res_euro_clean.sort(key=extract_ping)
 
-    # === СОХРАНЯЕМ И ПОЛУЧАЕМ ИМЕНА ФАЙЛОВ ===
-    # Функция теперь вернет список, например: ['ru_white_part1.txt', 'ru_white_part2.txt']
     ru_files = save_chunked(res_ru_clean, FOLDER_RU, "ru_white")
     euro_files = save_chunked(res_euro_clean, FOLDER_EURO, "my_euro")
 
-    # === ГЕНЕРАЦИЯ СПИСКА ССЫЛОК ===
-    # Обязательно замени kort0881 на свой ник, если делал форк!
     GITHUB_USER_REPO = "kort0881/vpn-checker-backend"
     BRANCH = "main"
     BASE_URL_RU = f"https://raw.githubusercontent.com/{GITHUB_USER_REPO}/{BRANCH}/{BASE_DIR}/RU_Best"
@@ -268,6 +254,8 @@ if __name__ == "__main__":
         f.write("\n".join(subs_lines))
 
     print("=== SUCCESS: LISTS GENERATED ===")
+
+
 
 
 

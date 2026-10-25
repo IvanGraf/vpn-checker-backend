@@ -569,12 +569,6 @@
     "time": 1792659709.5274882,
     "country": "LT"
   },
-  "vless://2c634977-584e-4e1f-b501-1b70c77a6743@37.18.14.43:2053?alpn=h2%2Chttp%2F1.1&encryption=none&extra=null&host=summerculture.net&mode=auto&path=%2Fapi%2Fv1%2Fupload&security=tls&sni=summerculture.net&type=xhttp": {
-    "alive": true,
-    "latency": 384,
-    "time": 1792636372.5861409,
-    "country": "AT"
-  },
   "vless://2c634977-584e-4e1f-b501-1b70c77a6743@37.18.14.43:2053?encryption=none&extra=null&mode=auto&path=%2Fapi%2Fv1%2Fupload&security=tls&sni=summerculture.net&type=xhttp": {
     "alive": true,
     "latency": 416,
@@ -629,65 +623,17 @@
     "time": 1792866439.8465443,
     "country": "ES"
   },
-  "vless://2c634977-584e-4e1f-b501-1b70c77a6743@37.18.14.43:2053?encryption=none&extra=null&fp=safari&path=%2Fapi%2Fv1%2Fupload&security=tls&sni=summerculture.net&type=xhttp": {
-    "alive": true,
-    "latency": 375,
-    "time": 1792636372.5861409,
-    "country": "AT"
-  },
-  "vless://2c634977-584e-4e1f-b501-1b70c77a6743@37.18.14.43:2053?alpn=h2%2Chttp%2F1.1&encryption=none&extra=null&fp=safari&host=summerculture.net&mode=auto&path=%2Fapi%2Fv1%2Fupload&security=tls&sni=summerculture.net&type=xhttp": {
-    "alive": true,
-    "latency": 368,
-    "time": 1792636372.5861409,
-    "country": "AT"
-  },
-  "vless://2c634977-584e-4e1f-b501-1b70c77a6743@37.18.14.43:2053?encryption=none&extra=null&fp=edge&host=summerculture.net&mode=auto&path=%2Fapi%2Fv1%2Fupload&security=tls&sni=summerculture.net&type=xhttp": {
-    "alive": true,
-    "latency": 345,
-    "time": 1792636372.5861409,
-    "country": "AT"
-  },
   "vless://6a2aff19-ff1f-4a13-96c8-a4d8986a9699@78.159.246.85:2053?encryption=none&extra=null&fp=chrome&host=fitindoor.net&mode=auto&path=%2Fapi%2Fv1%2Fupload&security=tls&sni=fitindoor.net&type=xhttp": {
     "alive": true,
     "latency": 352,
     "time": 1792809323.019383,
     "country": "NO"
   },
-  "vless://2c634977-584e-4e1f-b501-1b70c77a6743@37.18.14.43:2053?alpn=h2%2C%2Bhttp%2F1.1&encryption=none&extra=null&fp=edge&host=summerculture.net&mode=auto&path=%2Fapi%2Fv1%2Fupload&security=tls&sni=summerculture.net&type=xhttp": {
-    "alive": true,
-    "latency": 338,
-    "time": 1792636372.5861409,
-    "country": "AT"
-  },
-  "vless://2c634977-584e-4e1f-b501-1b70c77a6743@37.18.14.43:2053?alpn=h2%2C%2Bhttp%2F1.1&encryption=none&extra=null&fp=ios&host=summerculture.net&mode=auto&path=%2Fapi%2Fv1%2Fupload&security=tls&sni=summerculture.net&type=xhttp": {
-    "alive": true,
-    "latency": 387,
-    "time": 1792636372.5861409,
-    "country": "AT"
-  },
-  "vless://2c634977-584e-4e1f-b501-1b70c77a6743@37.18.14.43:2053?encryption=none&extra=null&fp=chrome&mode=auto&path=%2Fapi%2Fv1%2Fupload&security=tls&sni=summerculture.net&type=xhttp": {
-    "alive": true,
-    "latency": 366,
-    "time": 1792636372.5861409,
-    "country": "AT"
-  },
-  "vless://2c634977-584e-4e1f-b501-1b70c77a6743@37.18.14.43:2053?encryption=none&extra=null&fp=ios&mode=auto&path=%2Fapi%2Fv1%2Fupload&security=tls&sni=summerculture.net&type=xhttp": {
-    "alive": true,
-    "latency": 399,
-    "time": 1792636372.5861409,
-    "country": "AT"
-  },
   "vless://633f424e-2b11-48da-a6b3-a849dd71456f@45.12.75.242:26424?encryption=none&pbk=l8AubqcxQO-HRFJy4pZL1vbLOo-eXit69s-XulSELE0&security=reality&sid=23103e1e&sni=ya.ru&type=raw": {
     "alive": true,
     "latency": 746,
     "time": 1792895009.6311383,
     "country": "IT"
-  },
-  "vless://66217279-de40-4b62-b2bb-9c33b8fb7a01@37.18.14.190:7445?encryption=none&flow=xtls-rprx-vision&fp=random&pbk=S_s3FVodJIep88KnIgT0cZLUMB2tAJHTJEn0o-J03G8&security=reality&sid=283f4b51fbe39ad9&sni=passport.yandex.ru&type=raw": {
-    "alive": true,
-    "latency": 355,
-    "time": 1792636372.5861409,
-    "country": "FI"
   },
   "vless://1bb2af63-4472-44ed-9c70-8f316258b68b@62.152.58.90:443?encryption=none&fp=random&mode=gun&pbk=JBKJlzuJH1YzDHAoz28wEKbzWTGpDpKjgtSq0oT0a0k&security=reality&sid=27e53bbcab7593d7&sni=360.yandex.ru&type=grpc": {
     "alive": true,
